@@ -1,0 +1,23 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+  command = "echo 'Build kerak emas, statik fayllar'"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["firebase-admin"]
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Stol QR-kodlari: /table/1 ... /table/99. Sahifa o'zgarmasdan ochiladi (manzil qatori
+# /table/3 bo'lib qoladi), stol raqamini site.js manzildan o'qiydi.
+[[redirects]]
+  from = "/table/:num"
+  to = "/index.html"
+  status = 200

@@ -1,0 +1,78 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() { return request.auth != null; }
+    function userRole() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
+    function isSuperAdmin() { return isSignedIn() && userRole() == "super_admin"; }
+    function isBoshliqOrAbove() { return isSignedIn() && (userRole() == "super_admin" || userRole() == "boshliq"); }
+    function isStaff() { return isSignedIn() && (userRole() == "super_admin" || userRole() == "boshliq" || userRole() == "ofitsiant"); }
+
+    // Menyu: hamma o'qiydi; boshliq va super admin o'zgartiradi
+    match /menu/{itemId} {
+      allow read: if true;
+      allow write: if isBoshliqOrAbove();
+    }
+
+    // Sozlamalar (karta, aksiya, ish vaqti): hamma o'qiydi; boshliq va super admin o'zgartiradi
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isBoshliqOrAbove();
+    }
+
+    // Buyurtmalar: mijozlar to'g'ridan-to'g'ri YOZA ham, O'QIY ham olmaydi.
+    // Buyurtma faqat server (create-order funksiyasi) orqali yaratiladi,
+    // tarix esa lookup-orders funksiyasi orqali beriladi.
+    // Ofitsiant: to'lov tekshirilayotgan buyurtmaga tegmaydi va bekor qila olmaydi.
+    match /orders/{orderId} {
+      allow create: if false;
+      allow read: if isStaff();
+      allow update: if isBoshliqOrAbove()
+                    || (isStaff()
+                        && resource.data.status != "pul_tekshirilmoqda"
+                        && request.resource.data.status != "bekor_qilindi");
+      allow delete: if false;
+    }
+
+    // Sharhlar: mijoz faqat tasdiqlanmagan (approved=false), qisqa sharh yoza oladi;
+    // hamma faqat tasdiqlanganlarini o'qiydi; tasdiqlash/o'chirish - boshliq va super admin
+    match /reviews/{reviewId} {
+      allow create: if request.resource.data.keys().hasOnly(["orderId", "rating", "text", "customerName", "approved", "createdAt"])
+                    && request.resource.data.approved == false
+                    && request.resource.data.rating is int
+                    && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+                    && request.resource.data.text is string && request.resource.data.text.size() <= 500
+                    && request.resource.data.customerName is string && request.resource.data.customerName.size() <= 60
+                    && request.resource.data.orderId is string && request.resource.data.orderId.size() <= 40
+                    && request.resource.data.createdAt == request.time;
+      allow read: if resource.data.approved == true || isStaff();
+      allow update, delete: if isBoshliqOrAbove();
+    }
+
+    // Taklif chegirmalari: faqat xodimlar (server ham Admin SDK orqali yozadi)
+    match /referral_credits/{creditId} {
+      allow read, create, update: if isStaff();
+      allow delete: if false;
+    }
+
+    // Amallar tarixi: xodim faqat o'z email'i bilan yozadi; o'qish - faqat super admin
+    match /audit_logs/{logId} {
+      allow create: if isStaff() && request.resource.data.actor == request.auth.token.email;
+      allow read: if isSuperAdmin();
+      allow update, delete: if false;
+    }
+
+    // Buyurtma kodlari hisoblagichi: faqat server
+    match /counters/{id} {
+      allow read, write: if false;
+    }
+
+    // Foydalanuvchi rollari: har kim o'zinikini, super admin hammasini o'qiydi.
+    // Yozish faqat server (staff funksiyasi) orqali.
+    match /users/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isSuperAdmin());
+      allow write: if false;
+    }
+  }
+}
