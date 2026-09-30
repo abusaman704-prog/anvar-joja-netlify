@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Anvar Joja — Issiq va shirali qovurilgan jo'ja</title>
+<meta name="description" content="Anvar Joja — qovurilgan jo'ja, milliy taomlar, shashlik. Olib ketish, yetkazib berish, stol buyurtmasi." />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/style.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🍗</text></svg>" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <p class="brand-name">🍗 Anvar Joja</p>
+        <p class="brand-tag">Issiq va shirali qovurilgan jo'ja</p>
+      </div>
+      <div id="open-status" class="status-pill">
+        <span class="dot"></span>
+        <span class="status-text">Tekshirilmoqda…</span>
+      </div>
+    </div>
+    <div id="table-banner" class="table-banner" hidden>
+      Siz <strong id="table-banner-num"></strong>-stoldasiz — buyurtmangiz shu stolga yoziladi
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner" id="promo-box">
+      <p class="promo-label">Bugungi aksiya</p>
+      <p class="promo-text">Qovurilgan jo'ja buyurtmasiga sous bepul</p>
+    </div>
+  </section>
+
+  <main class="content">
+
+    <div class="quick-links">
+      <button class="quick-link-btn" id="open-history-btn">📋 Buyurtmalarim</button>
+      <button class="quick-link-btn" id="open-favorites-btn">❤ Sevimlilar</button>
+    </div>
+
+    <nav class="tabs" id="category-tabs"></nav>
+
+    <section id="menu-list" class="menu-list"></section>
+
+    <section class="bulk-banner" id="bulk-banner">
+      <div>
+        <p class="bulk-title">5 kg dan ortiq yoki to'y kerakmi?</p>
+        <p class="bulk-sub">Ertangi kundan boshlab buyurtma bering, 50% avans yetarli</p>
+      </div>
+      <i>&#8250;</i>
+    </section>
+
+    <section class="reviews-section" id="reviews-section" hidden>
+      <p class="section-title">Mijozlar fikri</p>
+      <div id="reviews-list" class="reviews-list"></div>
+    </section>
+
+  </main>
+
+  <div class="cart-bar" id="cart-bar" hidden>
+    <div class="cart-bar-inner">
+      <span id="cart-count">0 mahsulot</span>
+      <button id="cart-open-btn" class="btn-primary">Savat — <span id="cart-total">0</span> so'm</button>
+    </div>
+  </div>
+
+  <!-- ===== Savat modal ===== -->
+  <dialog id="cart-modal" class="sheet">
+    <div class="sheet-header">
+      <p class="sheet-title">Savat</p>
+      <button class="icon-btn" data-close="cart-modal">&times;</button>
+    </div>
+    <div class="sheet-body" id="cart-items"></div>
+    <div class="sheet-footer">
+      <div class="row-between"><span>Jami</span><strong id="cart-modal-total">0 so'm</strong></div>
+      <button id="go-checkout-btn" class="btn-primary btn-block">Buyurtma berish</button>
+    </div>
+  </dialog>
+
+  <!-- ===== Checkout modal ===== -->
+  <dialog id="checkout-modal" class="sheet">
+    <div class="sheet-header">
+      <p class="sheet-title">Buyurtma ma'lumotlari</p>
+      <button class="icon-btn" data-close="checkout-modal">&times;</button>
+    </div>
+    <form id="checkout-form" class="sheet-body">
+      <label class="field" id="order-type-field">
+        <span>Buyurtma turi</span>
+        <div class="segmented">
+          <label><input type="radio" name="orderType" value="pickup" checked /> Olib ketish</label>
+          <label><input type="radio" name="orderType" value="delivery" /> Yetkazish</label>
+        </div>
+      </label>
+
+      <label class="field">
+        <span>Ismingiz</span>
+        <input required name="name" type="text" placeholder="Ismingiz" />
+      </label>
+
+      <label class="field">
+        <span>Telefon raqamingiz</span>
+        <input required name="phone" type="tel" placeholder="+998 90 123 45 67" />
+      </label>
+
+      <label class="field" id="address-field" hidden>
+        <span>Manzil</span>
+        <textarea name="address" rows="2" placeholder="Yetkazib berish manzili"></textarea>
+      </label>
+      <p class="hint" id="delivery-hint" hidden></p>
+
+      <label class="field">
+        <span>Do'st taklif kodi (ixtiyoriy)</span>
+        <input name="referralPhone" type="tel" placeholder="Sizni taklif qilgan mijozning telefoni" />
+      </label>
+
+      <label class="field">
+        <span>Izoh (ixtiyoriy)</span>
+        <textarea name="comment" rows="2" placeholder="Qo'shimcha izoh"></textarea>
+      </label>
+
+      <button type="submit" class="btn-primary btn-block">Davom etish</button>
+    </form>
+  </dialog>
+
+  <!-- ===== To'lov modal (olib ketish / yetkazish uchun) ===== -->
+  <dialog id="payment-modal" class="sheet">
+    <div class="sheet-header">
+      <p class="sheet-title">To'lov</p>
+      <button class="icon-btn" data-close="payment-modal">&times;</button>
+    </div>
+    <div class="sheet-body">
+      <div class="pay-card">
+        <p class="pay-amount" id="pay-amount">0 so'm</p>
+        <p class="pay-sub" id="pay-sub-label">To'lash kerak</p>
+        <div class="pay-card-details">
+          <p id="pay-card-number">0000 0000 0000 0000</p>
+          <p id="pay-card-holder">ISM FAMILIYA</p>
+        </div>
+        <p class="hint">To'lov izohiga telefon raqamingizni yozing.</p>
+      </div>
+      <form id="payment-form">
+        <label class="field"><span>To'langan summa</span><input required type="number" name="amountPaid" placeholder="Masalan: 155000" /></label>
+        <label class="field"><span>Chek rasmi</span><input required type="file" name="receipt" accept="image/*" /></label>
+        <p class="hint" id="upload-status"></p>
+        <button type="submit" class="btn-primary btn-block" id="submit-payment-btn">Buyurtmani yuborish</button>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- ===== Tasdiqlash modal ===== -->
+  <dialog id="confirm-modal" class="sheet">
+    <div class="sheet-body confirm-body">
+      <i class="confirm-icon">&#10003;</i>
+      <p class="sheet-title">Buyurtma qabul qilindi</p>
+      <p class="hint">Buyurtma kodi: <strong id="confirm-order-code"></strong></p>
+      <p class="hint" id="confirm-extra"></p>
+      <div class="referral-box">
+        <p class="hint">Do'stingizni taklif qiling — u buyurtma bergach, sizga 5% chegirma beriladi:</p>
+        <p class="referral-code">Sizning kodingiz: <strong id="my-referral-code"></strong></p>
+      </div>
+      <button class="btn-primary btn-block" data-close="confirm-modal">Tushunarli</button>
+    </div>
+  </dialog>
+
+  <!-- ===== Katta buyurtma / to'y modal ===== -->
+  <dialog id="bulk-modal" class="sheet">
+    <div class="sheet-header">
+      <p class="sheet-title">5 kg dan ortiq / to'y</p>
+      <button class="icon-btn" data-close="bulk-modal">&times;</button>
+    </div>
+    <form id="bulk-form" class="sheet-body">
+      <label class="field"><span>Necha kilogram jo'ja kerak?</span><input required type="number" min="5.5" max="500" step="0.5" name="kg" placeholder="Masalan: 10" /></label>
+      <label class="field"><span>Qaysi sana kerak?</span><input required type="date" name="date" id="bulk-date" /></label>
+      <label class="field">
+        <span>Olib ketasizmi yoki yetkazib berilsinmi?</span>
+        <div class="segmented">
+          <label><input type="radio" name="bulkType" value="pickup" checked /> Olib ketish</label>
+          <label><input type="radio" name="bulkType" value="delivery" /> Yetkazish</label>
+        </div>
+      </label>
+      <label class="field" id="bulk-address-field" hidden><span>Manzil</span><textarea name="address" rows="2"></textarea></label>
+      <label class="field"><span>Ismingiz</span><input required name="name" type="text" /></label>
+      <label class="field"><span>Telefon raqamingiz</span><input required name="phone" type="tel" /></label>
+      <label class="field"><span>Izoh (ixtiyoriy)</span><textarea name="comment" rows="2"></textarea></label>
+      <p class="hint" id="bulk-advance-hint"></p>
+      <button type="submit" class="btn-primary btn-block">Davom etish — avans to'lov</button>
+    </form>
+  </dialog>
+
+  <!-- ===== Buyurtmalarim (tarix) modal ===== -->
+  <dialog id="history-modal" class="sheet">
+    <div class="sheet-header">
+      <p class="sheet-title">Buyurtmalarim</p>
+      <button class="icon-btn" data-close="history-modal">&times;</button>
+    </div>
+    <div class="sheet-body">
+      <form id="history-form" class="history-search">
+        <input required type="tel" name="phone" placeholder="Telefon raqamingiz" />
+        <button type="submit" class="btn-primary">Qidirish</button>
+      </form>
+      <div id="history-results"></div>
+    </div>
+  </dialog>
+
+  <!-- ===== Sevimlilar modal ===== -->
+  <dialog id="favorites-modal" class="sheet">
+    <div class="sheet-header">
+      <p class="sheet-title">Sevimli taomlaringiz</p>
+      <button class="icon-btn" data-close="favorites-modal">&times;</button>
+    </div>
+    <div class="sheet-body" id="favorites-list"></div>
+  </dialog>
+
+  <!-- ===== Sharh qoldirish modal ===== -->
+  <dialog id="review-modal" class="sheet">
+    <div class="sheet-header">
+      <p class="sheet-title">Sharh qoldiring</p>
+      <button class="icon-btn" data-close="review-modal">&times;</button>
+    </div>
+    <form id="review-form" class="sheet-body">
+      <input type="hidden" name="orderId" />
+      <label class="field"><span>Bahoyingiz</span>
+        <div class="star-rating" id="star-rating">
+          <span class="active" data-star="1">★</span><span class="active" data-star="2">★</span><span class="active" data-star="3">★</span><span class="active" data-star="4">★</span><span class="active" data-star="5">★</span>
+        </div>
+        <input type="hidden" name="rating" value="5" />
+      </label>
+      <label class="field"><span>Fikringiz</span><textarea name="text" rows="3" maxlength="500" placeholder="Taom va xizmat haqida fikringiz"></textarea></label>
+      <button type="submit" class="btn-primary btn-block">Yuborish</button>
+      <p class="hint">Sharhingiz tekshiruvdan so'ng saytda ko'rinadi.</p>
+    </form>
+  </dialog>
+
+  <footer class="site-footer">
+    <a id="footer-phone" href="tel:+998881743333" class="footer-link">Telefon</a>
+    <a id="footer-instagram" href="https://instagram.com/anvar_joja" target="_blank" rel="noopener" class="footer-link">Instagram</a>
+    <a id="footer-map" href="https://maps.app.goo.gl/9T3jNz8n9buVoW5Z8" target="_blank" rel="noopener" class="footer-link">Xarita</a>
+  </footer>
+
+  <script type="module" src="/js/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Anvar Joja — Admin panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/admin/admin.css" />
+</head>
+<body>
+
+  <div id="login-screen" class="login-screen">
+    <form id="login-form" class="login-box">
+      <p class="login-title">Anvar Joja — Admin</p>
+      <label class="field"><span>Email</span><input required type="email" name="email" autocomplete="username" /></label>
+      <label class="field"><span>Parol</span><input required type="password" name="password" autocomplete="current-password" /></label>
+      <p class="hint error" id="login-error"></p>
+      <button type="submit" class="btn-primary btn-block">Kirish</button>
+    </form>
+  </div>
+
+  <div id="app-screen" class="app-screen" hidden>
+
+    <header class="admin-header no-print">
+      <div>
+        <p class="admin-title">Anvar Joja</p>
+        <p class="admin-role" id="user-role-label"></p>
+      </div>
+      <button id="logout-btn" class="btn-ghost">Chiqish</button>
+    </header>
+
+    <nav class="admin-tabs no-print">
+      <button data-tab="orders" class="active">Buyurtmalar</button>
+      <button data-tab="menu">Menyu</button>
+      <button data-tab="reviews">Sharhlar</button>
+      <button data-tab="stats">Statistika</button>
+      <button data-tab="settings">Sozlamalar</button>
+      <button data-tab="qr">QR-stollar</button>
+      <button data-tab="staff">Xodimlar</button>
+      <button data-tab="audit">Tarix</button>
+    </nav>
+
+    <p id="global-error" class="hint error no-print" hidden></p>
+
+    <!-- ---- Buyurtmalar ---- -->
+    <section id="panel-orders" class="panel active no-print">
+      <div class="filters">
+        <select id="filter-status">
+          <option value="">Hammasi</option>
+          <option value="yangi">Yangi</option>
+          <option value="pul_tekshirilmoqda">To'lov tekshirilmoqda</option>
+          <option value="qabul_qilindi">Qabul qilindi</option>
+          <option value="tayyorlanmoqda">Tayyorlanmoqda</option>
+          <option value="tayyor">Tayyor</option>
+          <option value="yetkazilmoqda">Yetkazilmoqda</option>
+          <option value="bajarildi">Bajarildi</option>
+          <option value="bekor_qilindi">Bekor qilindi</option>
+        </select>
+        <select id="filter-type">
+          <option value="">Barcha turlar</option>
+          <option value="pickup">Olib ketish</option>
+          <option value="delivery">Yetkazish</option>
+          <option value="table">Stol</option>
+          <option value="bulk">Katta buyurtma</option>
+        </select>
+      </div>
+      <div id="orders-list" class="orders-list"></div>
+    </section>
+
+    <!-- ---- Menyu ---- -->
+    <section id="panel-menu" class="panel no-print">
+      <div class="menu-toolbar">
+        <button id="add-item-btn" class="btn-primary">+ Yangi taom</button>
+        <button id="seed-menu-btn" class="btn-ghost" hidden>Tayyor menyuni yuklash (15 ta taom)</button>
+      </div>
+      <p class="hint" id="menu-status"></p>
+      <div id="menu-admin-list" class="menu-admin-list"></div>
+    </section>
+
+    <!-- ---- Sharhlar ---- -->
+    <section id="panel-reviews" class="panel no-print">
+      <div id="reviews-admin-list" class="orders-list"></div>
+    </section>
+
+    <!-- ---- Statistika ---- -->
+    <section id="panel-stats" class="panel no-print">
+      <div class="stats-grid" id="stats-grid"></div>
+      <button id="export-csv-btn" class="btn-primary" style="margin-top:16px;">CSV yuklab olish</button>
+    </section>
+
+    <!-- ---- Sozlamalar ---- -->
+    <section id="panel-settings" class="panel no-print">
+      <form id="settings-form">
+        <label class="field"><span>Ish vaqti: ochilish</span><input type="time" name="openTime" /></label>
+        <label class="field"><span>Ish vaqti: yopilish</span><input type="time" name="closeTime" /></label>
+        <label class="field"><span>Aksiya matni</span><input type="text" name="promoText" /></label>
+        <label class="field"><span><input type="checkbox" name="promoActive" style="width:auto;display:inline;" /> Aksiya faol</span></label>
+        <label class="field"><span>Karta raqami</span><input type="text" name="cardNumber" /></label>
+        <label class="field"><span>Karta egasi</span><input type="text" name="cardHolder" /></label>
+        <label class="field"><span>Telefon</span><input type="tel" name="phone" /></label>
+        <label class="field"><span>Instagram havolasi</span><input type="url" name="instagramUrl" /></label>
+        <label class="field"><span>Xarita havolasi</span><input type="url" name="mapUrl" /></label>
+        <label class="field"><span>Holat</span>
+          <select name="isOpenOverride">
+            <option value="">Avtomatik (ish vaqtiga qarab)</option>
+            <option value="true">Majburiy ochiq</option>
+            <option value="false">Majburiy yopiq</option>
+          </select>
+        </label>
+        <button type="submit" class="btn-primary btn-block">Saqlash</button>
+        <p class="hint" id="settings-status"></p>
+      </form>
+    </section>
+
+    <!-- ---- QR-stollar ---- -->
+    <section id="panel-qr" class="panel">
+      <div class="qr-controls no-print">
+        <label class="field" style="max-width:200px;"><span>Stollar soni</span><input type="number" id="qr-count" min="1" max="99" value="10" /></label>
+        <button id="qr-generate-btn" class="btn-primary">QR-kodlarni yaratish</button>
+        <button id="qr-print-btn" class="btn-ghost" hidden>Chop etish</button>
+        <p class="hint">Har bir QR-kod shu saytning /table/N havolasiga olib boradi. Chop etib, stollarga yopishtiring.</p>
+      </div>
+      <div id="qr-grid" class="qr-grid"></div>
+    </section>
+
+    <!-- ---- Xodimlar (faqat Super Admin) ---- -->
+    <section id="panel-staff" class="panel no-print">
+      <div id="staff-list" class="orders-list" style="margin-bottom:20px;"></div>
+      <form id="staff-form">
+        <p class="section-heading">Yangi xodim qo'shish</p>
+        <label class="field"><span>Ism</span><input required type="text" name="name" maxlength="60" /></label>
+        <label class="field"><span>Email</span><input required type="email" name="email" autocomplete="off" /></label>
+        <label class="field"><span>Parol (kamida 6 belgi)</span><input required type="password" name="password" minlength="6" autocomplete="new-password" /></label>
+        <label class="field"><span>Rol</span>
+          <select name="role">
+            <option value="ofitsiant">Ofitsiant</option>
+            <option value="boshliq">Boshliq / Oshpaz</option>
+            <option value="super_admin">Super Admin</option>
+          </select>
+        </label>
+        <button type="submit" class="btn-primary btn-block">Xodim qo'shish</button>
+        <p class="hint" id="staff-status"></p>
+      </form>
+    </section>
+
+    <!-- ---- Tarix (audit log, faqat Super Admin) ---- -->
+    <section id="panel-audit" class="panel no-print">
+      <div id="audit-list" class="orders-list"></div>
+    </section>
+
+  </div>
+
+  <!-- ===== Taom modal ===== -->
+  <dialog id="item-modal" class="sheet no-print">
+    <div class="sheet-header">
+      <p class="sheet-title" id="item-modal-title">Yangi taom</p>
+      <button class="icon-btn" data-close="item-modal" aria-label="Yopish">&times;</button>
+    </div>
+    <form id="item-form" class="sheet-body">
+      <input type="hidden" name="id" />
+      <label class="field"><span>Nomi</span><input required type="text" name="name" maxlength="80" /></label>
+      <label class="field"><span>Toifa</span>
+        <select name="category" required>
+          <option value="joja">Jo'ja</option>
+          <option value="milliy">Milliy taomlar</option>
+          <option value="shashlik">Shashlik</option>
+        </select>
+      </label>
+      <label class="field"><span>Narx turi</span>
+        <select name="priceType"><option value="portion">Porsiya</option><option value="kg">Kilogram</option></select>
+      </label>
+      <label class="field"><span>Narxi (so'm)</span><input required type="number" min="0" name="price" /></label>
+      <label class="field"><span>Birlik yorlig'i (masalan: porsiya, 1 kg)</span><input type="text" name="unitLabel" maxlength="30" /></label>
+      <div class="field">
+        <span>Rasm</span>
+        <div id="item-image-preview" class="item-image-preview" hidden><img alt="Taom rasmi" /></div>
+        <input type="file" name="imageFile" accept="image/*" />
+        <input type="hidden" name="imageUrl" />
+        <p class="hint" id="item-image-status">Yangi rasm tanlasangiz, saqlaganda yuklanadi.</p>
+        <button type="button" id="remove-image-btn" class="btn-ghost" hidden>Rasmni olib tashlash</button>
+      </div>
+      <label class="field"><span><input type="checkbox" name="visible" checked style="width:auto;display:inline;" /> Saytda ko'rinsin</span></label>
+      <label class="field"><span>Tartib raqami</span><input type="number" name="order" value="1" /></label>
+      <button type="submit" class="btn-primary btn-block" id="item-save-btn">Saqlash</button>
+      <button type="button" id="delete-item-btn" class="btn-ghost btn-block" style="margin-top:8px; color:#C23B2A;" hidden>Taomni o'chirish</button>
+    </form>
+  </dialog>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script type="module" src="/admin/admin.js"></script>
+</body>
+</html>
